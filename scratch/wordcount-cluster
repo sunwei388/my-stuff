@@ -1,0 +1,8 @@
+bin/hadoop namenode -format
+bin/hadoop fs -ls /
+bin/hadoop fs -put ./LICENSE.txt input
+bin/hadoop jar hadoop-examples-1.0.4.jar wordcount input output
+bin/hadoop fs -ls /user/hadoop-user/output
+bin/hadoop fs -get /user/hadoop-user/output/part-r-00000 /tmp 
+bin/hadoop fs -rmr /user/hadoop-user/output
+

@@ -1,0 +1,8 @@
+set correct jdk
+
+
+1. JAVA_HOME
+2. ssh
+3. conf files
+start-all.sh
+stop-all.sh
