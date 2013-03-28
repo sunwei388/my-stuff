@@ -7,10 +7,13 @@
 2. Hadoop fundamental
 --2.1 Version control
 2.1.2 Build
-2.2 Eclipse integration
+--2.2 Eclipse integration
 2.3 Splunk
+--2.3.1 Splunk setup
+2.3.2 Splunk custom field extraction
 2.4 Monitor: JVM, OS stat, network stat, Hadoop stat
 2.5 Profile:
+2.6 Nagio
 
 3. Workload
 3.1 Automation
