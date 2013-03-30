@@ -1,58 +1,49 @@
 package hadoop.patent;
 
-import hadoop.wc1.WordCount;
-
-import java.io.File;
-
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.StringTokenizer;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.KeyValueTextInputFormat;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.util.GenericOptionsParser;
-import org.apache.hadoop.util.Tool;
-import org.apache.hadoop.util.ToolRunner;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
-public class PatentJob extends Configured implements Tool {
+public class PatentJob {
 
-	public static class MapClass extends Mapper<Text, Text, Text, Text> {
+	public static class PatentMapper extends Mapper<Object, Text, Text, Text> {
 	
-		public void map(Text key, Text value, OutputCollector<Text, Text> output,
-				Reporter reporter) throws IOException {
-			output.collect(value, key);
+		public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+			Text k = new Text();
+			k.set(key.toString());
+			context.write(value, k);
 		}
 	}
 	
-	public static class Reduce extends Reducer<Text, Text, Text, Text> {
-		public void reduce(Text keu, Iterator<Text> values, OutputCollector<Text, Text> output,
-			Reporter reporter) throws IOException {
-			String csv = "";
-			while (values.hasNext()) {
-				if (csv.length() > 0) csv += ",";
-				csv += values.next().toString();
+	public static class PatentReducer extends Reducer<Text,Text,Text,Text> {
+ 
+		 public void reduce(Text key, Iterable<Text> values, Context context
+                 ) throws IOException, InterruptedException {
+				String csv = "";
+				Iterator<Text> v = values.iterator();
+				while (v.hasNext()) {
+					if (csv.length() > 0) csv += ",";
+    				csv += v.next().toString();
+				}
+				Text rc = new Text();
+				rc.set(csv);
+				context.write(key, rc);
 			}
-		}
 	}
+
 	
-	public int run(String[] args) throws Exception {
-		Configuration conf = getConf();
+	public static void main(String[] args) throws Exception {
+	    Configuration conf = new Configuration();
 		
 		Job job = new Job(conf, "Patent Reverse");
 		
@@ -60,22 +51,19 @@ public class PatentJob extends Configured implements Tool {
 	    FileOutputFormat.setOutputPath(job, new Path(args[1]));
 	
 	    job.setJarByClass(PatentJob.class);
-		job.setMapperClass(MapClass.class);
-		job.setCombinerClass(Reduce.class);
-		job.setReducerClass(Reduce.class);
+		job.setMapperClass(PatentMapper.class);
+	//	job.setCombinerClass(PatentReducer.class);
+		job.setReducerClass(PatentReducer.class);
 		
-		job.setInputFormatClass(KeyValueTextInputFormat.class);
-		job.setOutputFormatClass(TextOutputFormat.class);
+//		job.setInputFormatClass(KeyValueTextInputFormat.class);
+//		job.setOutputFormatClass(TextOutputFormat.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(Text.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
-		job.set("key.value.separator.in.input.line", ",");
+	//	job.set("key.value.separator.in.input.line", ",");
 		
-		JobClient.runJob(job);
-		return 0;
+	    System.exit(job.waitForCompletion(true) ? 0 : 1);
 	}
 	
-	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new PatentJob(), args);
-		System.exit(res);
-	}
 }
