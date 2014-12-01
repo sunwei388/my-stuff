@@ -98,7 +98,7 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
 
-export JAVA_HOME=~/my-stuff/tools/jdk1.7.0_17
+export JAVA_HOME=~/tools/jdk1.7.0_17
 export GRADLE_HOME=~/tools/gradle-2.2.1
 
 export PATH=$JAVA_HOME/bin:$GRADLE_HOME/bin:$PATH
