@@ -1,0 +1,2 @@
+scp build/libs/flickr.war 10.0.1.11:/home/sunwei/tools/apache-tomcat-7.0.57/webapps/
+
