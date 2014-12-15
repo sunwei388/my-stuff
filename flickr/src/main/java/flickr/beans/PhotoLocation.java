@@ -11,6 +11,10 @@ public class PhotoLocation {
 		
 	}
 
+	public PhotoLocation(String path) {
+		this.path = path;
+	}
+	
 	public String getPath() {
 		return path;
 	}
@@ -25,6 +29,10 @@ public class PhotoLocation {
         if (folder != null) return folder.listFiles();
         else return null;
 		
+	}
+	
+	public String getURL(String fileName) {
+		return path + "/" + fileName;
 	}
 
 }
