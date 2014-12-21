@@ -1,6 +1,8 @@
 package flickr.beans;
 
 import java.io.File;
+import java.nio.file.*;
+import java.nio.file.StandardCopyOption;
 
 //TODO get setting from config file
 
@@ -11,6 +13,11 @@ public class PhotoLocation {
 		
 	}
 
+	@Override
+	public String toString() {
+		return "Location:" + path;
+	}
+	
 	public PhotoLocation(String path) {
 		this.path = path;
 	}
@@ -33,6 +40,19 @@ public class PhotoLocation {
 	
 	public String getURL(String fileName) {
 		return path + "/" + fileName;
+	}
+	
+	public void copy(String name, PhotoLocation dst) {
+		
+		File src = new File(path + "/" + name);
+		File target = new File(dst.getPath() + "/" + name);
+
+		try {
+			Files.copy(src.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}
+		catch (Exception e) {
+		    throw new RuntimeException("Copy failed" + e);
+		}
 	}
 
 }

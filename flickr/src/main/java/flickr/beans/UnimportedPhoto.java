@@ -24,6 +24,11 @@ public class UnimportedPhoto {
 		this.created = created;
 	}
 	
+	@Override
+	public String toString() {
+		return name + "." + ext;
+	}
+	
 	public String getName() {
 		return name;
 	}
