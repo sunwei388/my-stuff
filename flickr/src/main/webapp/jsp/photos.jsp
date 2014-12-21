@@ -35,7 +35,7 @@ function load_all_photos() {
         console.log(response);
         $.each(response, function (index, value) {
             $("#table_photos").append($('<tr><td><input type="checkbox" class="photo_selection" value="' + value.id + '"></td>' 
-                + '<td></td>' 
+                + '<td><img src="../photo-cache/' + value.photoFileName + '" height="100" width="100"></td>' 
                 + '<td>' + value.displayName + '</td><td>' + value.ext + '</td>'
                 + '<td>' + value.created + '</td><td>' + value.size + '</td></tr>'));
         } );

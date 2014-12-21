@@ -60,6 +60,10 @@ public class UnimportedPhoto {
 	public void setCreated(Date created) {
 		this.created = created;
 	}
+	
+	public void copy(PhotoLocation repository, String dstName, PhotoLocation dst) {
+		repository.copy(name+"."+ext, dstName, dst);
+	}
 
 	//TODO move to repository
 	static public List<UnimportedPhoto> getAllUnimportedPhotos(PhotoLocation location) {

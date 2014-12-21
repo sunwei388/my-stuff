@@ -42,10 +42,10 @@ public class PhotoLocation {
 		return path + "/" + fileName;
 	}
 	
-	public void copy(String name, PhotoLocation dst) {
+	public void copy(String srcName, String dstName, PhotoLocation dst) {
 		
-		File src = new File(path + "/" + name);
-		File target = new File(dst.getPath() + "/" + name);
+		File src = new File(path + "/" + srcName);
+		File target = new File(dst.getPath() + "/" + dstName);
 
 		try {
 			Files.copy(src.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -53,6 +53,13 @@ public class PhotoLocation {
 		catch (Exception e) {
 		    throw new RuntimeException("Copy failed" + e);
 		}
+	}
+	
+	public void rename(String name, String newName) {
+		File src = new File(path + "/" + name);
+		File target = new File(path + "/" + newName);
+
+		src.renameTo(target);
 	}
 
 }

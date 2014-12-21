@@ -32,7 +32,7 @@ public class JdbcSpittleRepository implements SpittleRepository {
       return jdbc.query(
     		  "select id, name, ext, original_name, size, created"
  	          + " from photos" 
-    	      + " order by created desc limit 50",
+    	      + " order by id desc limit 50",
 	          new PhotoRowMapper());
   }
   

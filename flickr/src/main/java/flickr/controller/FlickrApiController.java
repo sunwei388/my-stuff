@@ -1,6 +1,7 @@
 package flickr.controller;
 
 import java.net.URI;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,38 @@ public class FlickrApiController {
 	    		new PhotoLocation("/home/sunwei/flickr-unimported"));
 	  }
 	  
+	  @RequestMapping(value="import_photo", method=RequestMethod.POST, consumes="application/json")
+	  @ResponseStatus(HttpStatus.CREATED)
+	  public ResponseEntity<List<Photo>> importPhoto(@RequestBody List<UnimportedPhoto> photos_to_import, UriComponentsBuilder ucb) {
+		  System.out.println("Import photos");
+		  List<Photo> photos = new LinkedList<Photo>();
+
+		  for (UnimportedPhoto p : photos_to_import) {
+			  Photo photo = new Photo(-1, "", p.getExt(), p.getName(),
+					                  p.getSize(), p.getCreated());
+			  Photo saved = spittleRepository.savePhoto(photo);
+
+			  // copy photo
+			  p.copy(new PhotoLocation("/home/sunwei/flickr-unimported"), saved.getPhotoFileName(),
+					 new PhotoLocation("/home/sunwei/flickr-repository"));
+			  
+			  // rename photo in unimported
+			//  new PhotoLocation("/home/sunwei/flickr-unimported").rename(p.getName()+"."+p.getExt(), 
+			//		  p.getName()+"."+p.getExt()+".imported");
+			  
+			  photos.add(saved);
+		  }
+
+		  HttpHeaders headers = new HttpHeaders();
+		  URI locationUri = ucb.path("/photos/")
+		        .build()
+		        .toUri();
+		  headers.setLocation(locationUri);
+	    
+		  ResponseEntity<List<Photo>> responseEntity = new ResponseEntity<List<Photo>>(photos, headers, HttpStatus.CREATED);
+		  return responseEntity;
+	  }
+
 	  @RequestMapping(value="photos", method=RequestMethod.GET, produces="application/json")
 	  public List<Photo> findPhotos(
 	      @RequestParam(value="max", defaultValue=MAX_LONG_AS_STRING) long max,
@@ -58,10 +91,12 @@ public class FlickrApiController {
 		  
 		  List<Photo> photos = spittleRepository.findPhotos(max, count);
 		  
+		  // cleanup the cache
+		  
 		  // cache the photo
 		  for (Photo p : photos) {
 			  p.cache(new PhotoLocation("/home/sunwei/flickr-repository"), 
-					  new PhotoLocation("/home/sunwei/my-stuff/flickr/src/main/webapp/photo-cache"));
+					  new PhotoLocation("/home/sunwei/tools/apache-tomcat-7.0.57/webapps/flickr/photo-cache/"));
 		  }
 		  
 		  return photos;

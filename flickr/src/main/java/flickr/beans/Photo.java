@@ -100,6 +100,6 @@ public class Photo {
 	}	
 	
 	public void cache(PhotoLocation repository, PhotoLocation cache) {
-		repository.copy(getPhotoFileName(), cache);
+		repository.copy(getPhotoFileName(), getPhotoFileName(), cache);
 	}
 }

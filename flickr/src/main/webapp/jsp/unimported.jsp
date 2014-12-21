@@ -14,7 +14,7 @@
 </head>
 <body>
  
-    <h1>Unimported Photo List</h1>
+    <h1>Photos to Import</h1>
     <form id="form_unimported">
         <table id="table_unimported" border="1">
           <tr>
@@ -35,12 +35,13 @@ function load_all_unimported_photos() {
         console.log("unimported:");
         console.log(response);
         $.each(response, function (index, value) {
-            $("#table_unimported").append($('<tr><td><input type="checkbox" class="photo_selection" value="' + value.name + "." + value.ext + '"></td>' 
+            $("#table_unimported").append($('<tr><td><input type="checkbox" class="photo_selection" id="' + value.name + '"></td>' 
                 + '<td></td>' 
                 + '<td>' + value.name + '</td><td>' + value.ext + '</td>'
                 + '<td>' + value.created + '</td><td>' + value.size + '</td></tr>'));
+            $('#'+value.name).data("photo", value);
+            console.log($('#'+value.name).data("photo"));
         } );
-
 
         $('.photo_selection').change(function() {
             var n = $( ".photo_selection:checked" ).length; 
@@ -73,10 +74,10 @@ $(document).ready(function() {
     } );
 
     $('#button_import_all_photos').click(function(e) {
-        console.log("Import all photos");
+        console.log("Import selected photos");
         var photo_to_import = [];
         $( ".photo_selection:checked" ).each(function() {
-            photo_to_import.push(this.value);
+            photo_to_import.push($('#'+this.id).data("photo"));
         } );
         console.log(photo_to_import);
 
