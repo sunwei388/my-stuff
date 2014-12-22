@@ -22,6 +22,8 @@ import spittr.data.SpittleRepository;
 import flickr.beans.Photo;
 import flickr.beans.PhotoLocation;
 import flickr.beans.UnimportedPhoto;
+import flickr.beans.storage.PhotoBackup;
+import flickr.beans.storage.S3Backup;
 
 @RestController
 @RequestMapping("/api")
@@ -37,19 +39,20 @@ public class FlickrApiController {
 	    this.spittleRepository = spittleRepository;
 	  }
 
-	  @RequestMapping(method=RequestMethod.GET, produces="application/json")
-	  public List<Spittle> testFunc(
+	  @RequestMapping(value="main_backup", method=RequestMethod.GET, produces="application/json")
+	  public String[] listMainBackup(
 	      @RequestParam(value="max", defaultValue=MAX_LONG_AS_STRING) long max,
 	      @RequestParam(value="count", defaultValue="20") int count) {
-	    return spittleRepository.findSpittles(max, count);
+		  
+		  PhotoBackup s3 = new S3Backup(-1, "com.sunwei.flickr.dev");
+		  return s3.getAllFileNames();
 	  }
-
+	  
 	  @RequestMapping(value="unimported", method=RequestMethod.GET, produces="application/json")
 	  public List<UnimportedPhoto> findUnimportedPhotos(
 	      @RequestParam(value="max", defaultValue=MAX_LONG_AS_STRING) long max,
 	      @RequestParam(value="count", defaultValue="20") int count) {
-	    return UnimportedPhoto.getAllUnimportedPhotos(
-	    		new PhotoLocation("/home/sunwei/flickr-unimported"));
+	    return UnimportedPhoto.getAllUnimportedPhotos(spittleRepository.getUnimportedPhotoLocation());
 	  }
 	  
 	  @RequestMapping(value="import_photo", method=RequestMethod.POST, consumes="application/json")
@@ -64,8 +67,14 @@ public class FlickrApiController {
 			  Photo saved = spittleRepository.savePhoto(photo);
 
 			  // copy photo
-			  p.copy(new PhotoLocation("/home/sunwei/flickr-unimported"), saved.getPhotoFileName(),
-					 new PhotoLocation("/home/sunwei/flickr-repository"));
+			  p.copy(spittleRepository.getUnimportedPhotoLocation(), saved.getPhotoFileName(),
+					 spittleRepository.getPhotoRepository());
+			  
+			  // backup photo
+			  PhotoBackup backup = new S3Backup(-1, "com.sunwei.flickr.dev");
+			  backup.copyInto(saved.getPhotoFileName()
+					          , spittleRepository.getPhotoRepository()
+					          , null);
 			  
 			  // rename photo in unimported
 			//  new PhotoLocation("/home/sunwei/flickr-unimported").rename(p.getName()+"."+p.getExt(), 
@@ -95,8 +104,8 @@ public class FlickrApiController {
 		  
 		  // cache the photo
 		  for (Photo p : photos) {
-			  p.cache(new PhotoLocation("/home/sunwei/flickr-repository"), 
-					  new PhotoLocation("/home/sunwei/tools/apache-tomcat-7.0.57/webapps/flickr/photo-cache/"));
+			  p.cache(spittleRepository.getPhotoRepository(), 
+					  spittleRepository.getPhotoCache());
 		  }
 		  
 		  return photos;

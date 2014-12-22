@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import spittr.Spittle;
 import flickr.beans.Photo;
+import flickr.beans.PhotoLocation;
 
 @Repository
 public class JdbcSpittleRepository implements SpittleRepository {
@@ -154,4 +155,16 @@ public class JdbcSpittleRepository implements SpittleRepository {
 	    }
 	  }
 
+  public PhotoLocation getUnimportedPhotoLocation() {
+	  return new PhotoLocation("/home/sunwei/flickr-unimported");
+  }
+  
+  public PhotoLocation getPhotoRepository() {
+	  return new PhotoLocation("/home/sunwei/flickr-repository");	  
+  }
+  
+  public PhotoLocation getPhotoCache() {
+	  return new PhotoLocation("/home/sunwei/tools/apache-tomcat-7.0.57/webapps/flickr/photo-cache/");	   
+  }
+  
 }

@@ -9,7 +9,9 @@ dependencies {
     compile "org.hibernate:hibernate-validator:$hibernateValidatorVersion"
     compile "org.apache.commons:commons-lang3:$commonsLangVersion"
     compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+
     compile "commons-io:commons-io:$commonIOVersion"
+    compile "com.amazonaws:aws-java-sdk:1.9.13"
     
     compile "javax.servlet:jstl:$jstlVersion"
     providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"

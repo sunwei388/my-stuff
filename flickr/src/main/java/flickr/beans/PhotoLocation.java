@@ -38,6 +38,10 @@ public class PhotoLocation {
 		
 	}
 	
+	public File getFile(String fileName) {
+		return new File(path + "/" + fileName);
+	}
+	
 	public String getURL(String fileName) {
 		return path + "/" + fileName;
 	}

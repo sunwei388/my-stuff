@@ -4,6 +4,7 @@ import java.util.List;
 
 import spittr.Spittle;
 import flickr.beans.Photo;
+import flickr.beans.PhotoLocation;
 
 public interface SpittleRepository {
 
@@ -20,5 +21,11 @@ public interface SpittleRepository {
   Photo findPhotoById(long id);
   
   Photo savePhoto(Photo phone);
+  
+  PhotoLocation getUnimportedPhotoLocation();
+  
+  PhotoLocation getPhotoRepository();
+  
+  PhotoLocation getPhotoCache();
 
 }
