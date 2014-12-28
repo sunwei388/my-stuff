@@ -72,7 +72,7 @@ public class FlickrApiController {
 			  
 			  // backup photo
 			  PhotoBackup backup = new S3Backup(-1, "com.sunwei.flickr.dev");
-			  backup.copyInto(saved.getPhotoFileName()
+			  backup.copyInto(saved.getPhotoFileName() + ".zip"
 					          , spittleRepository.getPhotoRepository()
 					          , null);
 			  

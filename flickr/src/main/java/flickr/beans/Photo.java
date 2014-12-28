@@ -39,6 +39,15 @@ public class Photo {
 		return id + "." + ext;
 	}
 	
+	/* Note: although the photo is saved in zip format, it doesn't return zip extension
+	 * Here is reason
+	 * 
+	 * 1. In PhotoLocation.copy, it accepts the name without zip.
+	 * 
+	 * When copying file outside of PhotoLocation, such as copying to S3,
+	 * Remember to add ".zip"
+	 */
+	
 	public String getPhotoFileName() {
 		return id + "." + ext;
 	}
@@ -100,6 +109,6 @@ public class Photo {
 	}	
 	
 	public void cache(PhotoLocation repository, PhotoLocation cache) {
-		repository.copy(getPhotoFileName(), getPhotoFileName(), cache);
+		repository.copy(getPhotoFileName(), getPhotoFileName(), cache, PhotoCopyMode.unzip);
 	}
 }

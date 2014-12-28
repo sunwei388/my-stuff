@@ -62,7 +62,7 @@ public class UnimportedPhoto {
 	}
 	
 	public void copy(PhotoLocation repository, String dstName, PhotoLocation dst) {
-		repository.copy(name+"."+ext, dstName, dst);
+		repository.copy(name+"."+ext, dstName, dst, PhotoCopyMode.zip);
 	}
 
 	//TODO move to repository

@@ -155,16 +155,20 @@ public class JdbcSpittleRepository implements SpittleRepository {
 	    }
 	  }
 
+  static private PhotoLocation unimported = new PhotoLocation("/home/sunwei/flickr-unimported");
+  static private PhotoLocation repository = new PhotoLocation("/home/sunwei/flickr-repository");	
+  static private PhotoLocation cache = new PhotoLocation("/home/sunwei/tools/apache-tomcat-7.0.57/webapps/flickr/photo-cache/");	   
+  
   public PhotoLocation getUnimportedPhotoLocation() {
-	  return new PhotoLocation("/home/sunwei/flickr-unimported");
+	  return unimported;
   }
   
   public PhotoLocation getPhotoRepository() {
-	  return new PhotoLocation("/home/sunwei/flickr-repository");	  
+	  return repository;	  
   }
   
   public PhotoLocation getPhotoCache() {
-	  return new PhotoLocation("/home/sunwei/tools/apache-tomcat-7.0.57/webapps/flickr/photo-cache/");	   
+	  return cache;	   
   }
   
 }
