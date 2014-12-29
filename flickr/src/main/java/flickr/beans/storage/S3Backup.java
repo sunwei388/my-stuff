@@ -14,10 +14,25 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
+import flickr.app.Flickr;
+import flickr.app.FlickrMode;
 import flickr.beans.PhotoLocation;
 
 
 public class S3Backup extends PhotoBackup {
+	
+	public static S3Backup getS3Backup() {
+		
+		if (Flickr.getMode() == FlickrMode.dev) {
+			return new S3Backup(-1, "com.sunwei.flickr.dev");
+		} else if (Flickr.getMode() == FlickrMode.svt) {
+			return new S3Backup(-1, "com.sunwei.flickr.svt");
+		} else if (Flickr.getMode() == FlickrMode.sandbox) {
+			return null;   // no S3 in sandbox mode
+		} else {
+			return new S3Backup(-1, "com.sunwei.flickr.repository.20141228");
+		}
+	}
 
 	public S3Backup(long id, String container) {
 		super(id, "S3", "s3.amazonaws.com", container);

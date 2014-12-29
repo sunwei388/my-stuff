@@ -16,6 +16,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import spittr.Spittle;
+import flickr.app.Flickr;
+import flickr.app.FlickrMode;
 import flickr.beans.Photo;
 import flickr.beans.PhotoLocation;
 
@@ -31,18 +33,18 @@ public class JdbcSpittleRepository implements SpittleRepository {
 
   public List<Photo> findPhotos(long max, int count) {
       return jdbc.query(
-    		  "select id, name, ext, original_name, size, created"
+    		  "select photo_id, name, ext, original_name, size, created"
  	          + " from photos" 
-    	      + " order by id desc limit 50",
+    	      + " order by photo_id desc limit 50",
 	          new PhotoRowMapper());
   }
   
   public Photo findPhotoById(long id) {
 	  try {
 		  return jdbc.queryForObject(
-               "select id, name, ext, original_name, size, created" 
+               "select photo_id, name, ext, original_name, size, created" 
 		       + " from photos" 
-               + " where id = ?",
+               + " where photo_id = ?",
                new PhotoRowMapper(), id);
     } catch (EmptyResultDataAccessException e) {
       throw new SpittleNotFoundException(id);
@@ -146,7 +148,7 @@ public class JdbcSpittleRepository implements SpittleRepository {
   private static class PhotoRowMapper implements RowMapper<Photo> {
 	    public Photo mapRow(ResultSet rs, int rowNum) throws SQLException {
 	      return new Photo(
-	          rs.getLong("id"),
+	          rs.getLong("photo_id"),
 	          rs.getString("name"), 
 	          rs.getString("ext"), 
 	          rs.getString("original_name"), 
@@ -155,20 +157,36 @@ public class JdbcSpittleRepository implements SpittleRepository {
 	    }
 	  }
 
-  static private PhotoLocation unimported = new PhotoLocation("/home/sunwei/flickr-unimported");
-  static private PhotoLocation repository = new PhotoLocation("/home/sunwei/flickr-repository");	
+  static private PhotoLocation dev_unimported = new PhotoLocation("/home/sunwei/flickr-unimported");
+  static private PhotoLocation dev_repository = new PhotoLocation("/home/sunwei/flickr-repository");	
+  static private PhotoLocation dev_cache = new PhotoLocation("/home/sunwei/tools/apache-tomcat-7.0.57/webapps/flickr/photo-cache/");	   
+  
+  static private PhotoLocation unimported = new PhotoLocation("/flickr/unimported");
+  static private PhotoLocation repository = new PhotoLocation("/flickr/repository");	
   static private PhotoLocation cache = new PhotoLocation("/home/sunwei/tools/apache-tomcat-7.0.57/webapps/flickr/photo-cache/");	   
   
   public PhotoLocation getUnimportedPhotoLocation() {
-	  return unimported;
+	  if (Flickr.getMode() == FlickrMode.dev) {
+		  return dev_unimported;
+	  } else {
+		  return unimported;
+	  }
   }
   
   public PhotoLocation getPhotoRepository() {
-	  return repository;	  
+	  if (Flickr.getMode() == FlickrMode.dev) {
+		  return dev_repository;	  
+	  } else {
+		  return repository;	  
+	  }
   }
   
   public PhotoLocation getPhotoCache() {
-	  return cache;	   
+	  if (Flickr.getMode() == FlickrMode.dev) {
+		  return dev_cache;	   
+	  } else {
+		  return cache;	   		  
+	  }
   }
   
 }

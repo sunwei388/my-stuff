@@ -19,6 +19,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import spittr.Spittle;
 import spittr.data.SpittleRepository;
+import flickr.app.Flickr;
+import flickr.app.FlickrMode;
 import flickr.beans.Photo;
 import flickr.beans.PhotoLocation;
 import flickr.beans.UnimportedPhoto;
@@ -44,7 +46,7 @@ public class FlickrApiController {
 	      @RequestParam(value="max", defaultValue=MAX_LONG_AS_STRING) long max,
 	      @RequestParam(value="count", defaultValue="20") int count) {
 		  
-		  PhotoBackup s3 = new S3Backup(-1, "com.sunwei.flickr.dev");
+		  PhotoBackup s3 = S3Backup.getS3Backup();
 		  return s3.getAllFileNames();
 	  }
 	  
@@ -55,9 +57,9 @@ public class FlickrApiController {
 	    return UnimportedPhoto.getAllUnimportedPhotos(spittleRepository.getUnimportedPhotoLocation());
 	  }
 	  
-	  @RequestMapping(value="import_photo", method=RequestMethod.POST, consumes="application/json")
+	  @RequestMapping(value="import_all_photos", method=RequestMethod.POST, consumes="application/json")
 	  @ResponseStatus(HttpStatus.CREATED)
-	  public ResponseEntity<List<Photo>> importPhoto(@RequestBody List<UnimportedPhoto> photos_to_import, UriComponentsBuilder ucb) {
+	  public ResponseEntity<List<Photo>> importAllPhotos(@RequestBody List<UnimportedPhoto> photos_to_import, UriComponentsBuilder ucb) {
 		  System.out.println("Import photos");
 		  List<Photo> photos = new LinkedList<Photo>();
 
@@ -71,14 +73,16 @@ public class FlickrApiController {
 					 spittleRepository.getPhotoRepository());
 			  
 			  // backup photo
-			  PhotoBackup backup = new S3Backup(-1, "com.sunwei.flickr.dev");
+			  PhotoBackup backup = S3Backup.getS3Backup();
 			  backup.copyInto(saved.getPhotoFileName() + ".zip"
 					          , spittleRepository.getPhotoRepository()
 					          , null);
 			  
 			  // rename photo in unimported
-			//  new PhotoLocation("/home/sunwei/flickr-unimported").rename(p.getName()+"."+p.getExt(), 
-			//		  p.getName()+"."+p.getExt()+".imported");
+			  if (Flickr.getMode() != FlickrMode.dev) {
+				  spittleRepository.getUnimportedPhotoLocation().rename(p.getName()+"."+p.getExt(), 
+						  p.getName()+"."+p.getExt()+".imported");
+			  }
 			  
 			  photos.add(saved);
 		  }
@@ -90,6 +94,41 @@ public class FlickrApiController {
 		  headers.setLocation(locationUri);
 	    
 		  ResponseEntity<List<Photo>> responseEntity = new ResponseEntity<List<Photo>>(photos, headers, HttpStatus.CREATED);
+		  return responseEntity;
+	  }
+
+	  @RequestMapping(value="import_photo", method=RequestMethod.POST, consumes="application/json")
+	  @ResponseStatus(HttpStatus.CREATED)
+	  public ResponseEntity<Photo> importPhoto(@RequestBody UnimportedPhoto p, UriComponentsBuilder ucb) {
+		  System.out.println("Import one photo " + p.getName());
+
+		  Photo photo = new Photo(-1, "", p.getExt(), p.getName(),
+					                  p.getSize(), p.getCreated());
+	      Photo saved = spittleRepository.savePhoto(photo);
+
+			  // copy photo
+	      p.copy(spittleRepository.getUnimportedPhotoLocation(), saved.getPhotoFileName(),
+					 spittleRepository.getPhotoRepository());
+			  
+			  // backup photo
+		  PhotoBackup backup = S3Backup.getS3Backup();
+		  backup.copyInto(saved.getPhotoFileName() + ".zip"
+				  , spittleRepository.getPhotoRepository()
+			      , null);
+			  
+			  // rename photo in unimported
+	      if (Flickr.getMode() != FlickrMode.dev) {
+			  spittleRepository.getUnimportedPhotoLocation().rename(p.getName()+"."+p.getExt(), 
+						  p.getName()+"."+p.getExt()+".imported");
+		  }
+			  
+		  HttpHeaders headers = new HttpHeaders();
+		  URI locationUri = ucb.path("/photos/")
+		        .build()
+		        .toUri();
+		  headers.setLocation(locationUri);
+	    
+		  ResponseEntity<Photo> responseEntity = new ResponseEntity<Photo>(saved, headers, HttpStatus.CREATED);
 		  return responseEntity;
 	  }
 

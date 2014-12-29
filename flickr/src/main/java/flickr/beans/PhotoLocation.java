@@ -94,7 +94,7 @@ public class PhotoLocation {
 		    throw new RuntimeException("Copy failed" + e);
 		}
 		
-		if (mode == PhotoCopyMode.zip) {
+		if (mode == PhotoCopyMode.zip || mode == PhotoCopyMode.unzip) {
 			src.delete();
 		}
 	}
